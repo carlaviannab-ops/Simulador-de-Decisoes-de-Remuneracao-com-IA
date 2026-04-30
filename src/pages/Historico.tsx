@@ -65,7 +65,10 @@ export function Historico() {
                   </span>
                   <p className="font-semibold text-gray-900 mt-1">{sim.cargo_atual}</p>
                   <p className="text-sm text-gray-500">
-                    {formatBRL(sim.salario_atual)} → {formatBRL(sim.salario_proposto)} · {sim.setor} · {sim.estado}
+                    {sim.tipo === 'contratacao'
+                      ? `Oferta: ${formatBRL(sim.salario_proposto)}`
+                      : `${formatBRL(sim.salario_atual)} → ${formatBRL(sim.salario_proposto)}`
+                    } · {sim.setor} · {sim.estado}
                   </p>
                 </div>
                 <div className="text-right">
