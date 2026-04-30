@@ -39,6 +39,11 @@ export interface FormularioSimulacao {
   ultimo_reajuste?: string
   percentual_ultimo_reajuste?: number
   criticidade_cargo?: 'alta' | 'media' | 'baixa'
+  beneficio_vr?: number
+  beneficio_saude?: number
+  beneficio_vt?: number
+  beneficio_odonto?: number
+  beneficio_outros?: number
 }
 
 export interface ResultadoSimulacao {

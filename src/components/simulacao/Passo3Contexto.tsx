@@ -164,6 +164,70 @@ export function Passo3Contexto({ tipo, valores, onChange, onSimular, onVoltar, l
           </select>
         </div>
 
+        <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+          <p className="text-sm font-semibold text-gray-700 mb-3">
+            {tipo === 'contratacao' ? 'Benefícios a oferecer' : 'Benefícios atuais'}
+            <span className="ml-1 text-xs text-gray-400 font-normal">Custo mensal para a empresa — compõem o custo total</span>
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Vale Refeição / Alimentação (R$/mês)</label>
+              <input
+                type="number"
+                min={0}
+                value={valores.beneficio_vr ?? ''}
+                onChange={e => onChange('beneficio_vr', Number(e.target.value))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                placeholder="Ex: 600"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Plano de Saúde (R$/mês)</label>
+              <input
+                type="number"
+                min={0}
+                value={valores.beneficio_saude ?? ''}
+                onChange={e => onChange('beneficio_saude', Number(e.target.value))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                placeholder="Ex: 500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Vale Transporte (R$/mês)</label>
+              <input
+                type="number"
+                min={0}
+                value={valores.beneficio_vt ?? ''}
+                onChange={e => onChange('beneficio_vt', Number(e.target.value))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                placeholder="Ex: 250"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Plano Odontológico (R$/mês)</label>
+              <input
+                type="number"
+                min={0}
+                value={valores.beneficio_odonto ?? ''}
+                onChange={e => onChange('beneficio_odonto', Number(e.target.value))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                placeholder="Ex: 80"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-gray-600 mb-1">Outros benefícios — Gympass, previdência, seguro de vida... (R$/mês)</label>
+              <input
+                type="number"
+                min={0}
+                value={valores.beneficio_outros ?? ''}
+                onChange={e => onChange('beneficio_outros', Number(e.target.value))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                placeholder="Ex: 200"
+              />
+            </div>
+          </div>
+        </div>
+
         <div>
           <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
             <input
