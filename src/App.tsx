@@ -8,6 +8,9 @@ import { Historico } from './pages/Historico'
 import { SimulacaoDetalhe } from './pages/SimulacaoDetalhe'
 import { Planos } from './pages/Planos'
 import { Conta } from './pages/Conta'
+import { Radar } from './pages/Radar'
+import { Equipe } from './pages/Equipe'
+import { Lote } from './pages/Lote'
 import { Layout } from './components/layout/Layout'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
@@ -30,6 +33,9 @@ const router = createBrowserRouter([
       { path: 'simulacao/:id', element: <SimulacaoDetalhe /> },
       { path: 'planos', element: <Planos /> },
       { path: 'conta', element: <Conta /> },
+      { path: 'radar', element: <Radar /> },
+      { path: 'equipe', element: <Equipe /> },
+      { path: 'lote', element: <Lote /> },
     ],
   },
 ])

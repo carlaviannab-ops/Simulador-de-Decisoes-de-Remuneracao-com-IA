@@ -4,6 +4,7 @@ export type Plano = 'trial' | 'starter' | 'professional' | 'enterprise' | 'cance
 export type NivelRisco = 'baixo' | 'medio' | 'alto'
 export type Urgencia = 'imediata' | 'pode aguardar' | 'não recomendado agora'
 export type StatusSimulacao = 'pendente' | 'processando' | 'concluido' | 'erro'
+export type StatusAlerta = 'critico' | 'atencao' | 'ok' | 'pendente'
 
 export interface Profile {
   id: string
@@ -35,6 +36,9 @@ export interface FormularioSimulacao {
   politica_salarial?: string
   nivel_senioridade?: string
   tempo_cargo?: string
+  ultimo_reajuste?: string
+  percentual_ultimo_reajuste?: number
+  criticidade_cargo?: 'alta' | 'media' | 'baixa'
 }
 
 export interface ResultadoSimulacao {
@@ -45,6 +49,7 @@ export interface ResultadoSimulacao {
       salario_mensal: number
       variacao_percentual: number
       custo_anual_incremental: number
+      custo_total_empregador_anual?: number
     }>
     nota: string
   }
@@ -105,4 +110,56 @@ export interface Simulacao {
   registrado_por?: string
   registrado_em?: string
   observacao_aprovador?: string
+  lote_id?: string
+}
+
+export interface BenchmarkData {
+  p25: number
+  p50: number
+  p75: number
+  p90: number
+  nota: string
+}
+
+export interface RadarPosicao {
+  id: string
+  user_id: string
+  cargo: string
+  nivel_senioridade?: string
+  setor: string
+  estado: string
+  regime: string
+  salario_atual: number
+  benchmark?: BenchmarkData
+  status_alerta: StatusAlerta
+  atualizado_em?: string
+  criado_em: string
+}
+
+export interface MembroEquipe {
+  id: string
+  user_id: string
+  nome: string
+  cargo: string
+  nivel_senioridade?: string
+  area?: string
+  setor: string
+  estado: string
+  salario_atual: number
+  regime: string
+  data_admissao?: string
+  benchmark?: BenchmarkData
+  status_salarial: StatusAlerta
+  criado_em: string
+}
+
+export interface Lote {
+  id: string
+  user_id: string
+  nome: string
+  total: number
+  processados: number
+  erros: number
+  status: string
+  criado_em: string
 }

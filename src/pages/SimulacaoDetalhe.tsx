@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, Navigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Spinner } from '../components/Spinner'
 import type { Simulacao } from '../types'
@@ -25,8 +25,8 @@ export function SimulacaoDetalhe() {
   if (loading) return <Spinner />
   if (!simulacao) return <p className="text-gray-500">Simulação não encontrada.</p>
 
-  if (simulacao.status === 'concluido' && simulacao.resultado) {
-    return <></>  // Resultado completo renderizado em Resultado.tsx
+  if (simulacao.status === 'concluido') {
+    return <Navigate to={`/simulacao/${id}/resultado`} replace />
   }
 
   return (

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import type { FormularioSimulacao, TipoMovimento } from '../types'
@@ -13,12 +13,21 @@ type Passo = 1 | 2 | 3
 export function NovaSimulacao() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [passo, setPasso] = useState<Passo>(1)
+  const [searchParams] = useSearchParams()
+
+  const tipoParam = searchParams.get('tipo') as TipoMovimento | null
+  const cargoParam = searchParams.get('cargo')
+  const salarioParam = searchParams.get('salario')
+
+  const [passo, setPasso] = useState<Passo>(tipoParam ? 2 : 1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState<Partial<FormularioSimulacao>>({
     budget_informado: false,
     pares_existem: false,
+    ...(tipoParam && { tipo: tipoParam }),
+    ...(cargoParam && { cargo_atual: cargoParam }),
+    ...(salarioParam && { salario_atual: Number(salarioParam) }),
   })
 
   function handleChange(campo: keyof FormularioSimulacao, valor: string | number | boolean) {
@@ -40,10 +49,24 @@ export function NovaSimulacao() {
         body: form,
       })
 
-      if (fnError) throw fnError
+      if (fnError) {
+        const errData = data as { error?: string } | null
+        if (errData?.error === 'limite_atingido') {
+          setError('Você atingiu o limite de simulações do seu plano. Acesse Planos para fazer upgrade.')
+        } else if (errData?.error === 'ia_error') {
+          setError('A IA está temporariamente sobrecarregada. Aguarde alguns segundos e tente novamente.')
+        } else if (errData?.error === 'dados obrigatorios ausentes') {
+          setError('Preencha todos os campos obrigatórios antes de simular.')
+        } else {
+          setError('Erro ao processar simulação. Tente novamente em alguns segundos.')
+        }
+        setLoading(false)
+        return
+      }
+
       navigate(`/simulacao/${data.simulacao_id}/resultado`)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Erro ao processar simulação. Tente novamente.')
+      setError('Erro de conexão. Verifique sua internet e tente novamente.')
       setLoading(false)
     }
   }
@@ -74,6 +97,7 @@ export function NovaSimulacao() {
         )}
         {passo === 3 && (
           <Passo3Contexto
+            tipo={form.tipo!}
             valores={form}
             onChange={handleChange}
             onSimular={handleSimular}

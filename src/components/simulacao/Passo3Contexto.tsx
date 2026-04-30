@@ -1,6 +1,7 @@
-import type { FormularioSimulacao } from '../../types'
+import type { FormularioSimulacao, TipoMovimento } from '../../types'
 
 interface Props {
+  tipo: TipoMovimento
   valores: Partial<FormularioSimulacao>
   onChange: (campo: keyof FormularioSimulacao, valor: string | number | boolean) => void
   onSimular: () => void
@@ -8,7 +9,19 @@ interface Props {
   loading: boolean
 }
 
-export function Passo3Contexto({ valores, onChange, onSimular, onVoltar, loading }: Props) {
+const placeholderContexto: Record<TipoMovimento, string> = {
+  promocao:      'Motivo da promoção, conquistas relevantes, feedback da liderança, prontidão para o novo cargo...',
+  aumento:       'Motivo do pedido, histórico de performance, atividades além do escopo do cargo, risco de saída...',
+  contratacao:   'Urgência da contratação, perfil desejado, diferenciais buscados, por que esse salário...',
+  ajuste_faixa:  'Motivo da revisão, defasagem de mercado identificada, impacto esperado nos colaboradores...',
+  contraproposta:'Empresa concorrente, perfil do colaborador, risco de perda para o negócio, prazo para decisão...',
+}
+
+export function Passo3Contexto({ tipo, valores, onChange, onSimular, onVoltar, loading }: Props) {
+  const showHistoricoEtempo = tipo !== 'contratacao' && tipo !== 'ajuste_faixa'
+  const showUltimoReajuste  = tipo === 'aumento' || tipo === 'contraproposta'
+  const labelTempoCargo     = tipo === 'contraproposta' ? 'Tempo na empresa' : 'Tempo no cargo atual'
+
   return (
     <div>
       <h2 className="text-xl font-bold text-gray-900 mb-2">Contexto adicional</h2>
@@ -26,7 +39,7 @@ export function Passo3Contexto({ valores, onChange, onSimular, onVoltar, loading
             value={valores.contexto_adicional ?? ''}
             onChange={e => onChange('contexto_adicional', e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            placeholder="Descreva o histórico da pessoa, motivação da decisão, qualquer informação relevante..."
+            placeholder={placeholderContexto[tipo]}
           />
         </div>
 
@@ -48,29 +61,47 @@ export function Passo3Contexto({ valores, onChange, onSimular, onVoltar, loading
               <option value="Diretor">Diretor</option>
             </select>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tempo no cargo</label>
-            <input
-              type="text"
-              value={valores.tempo_cargo ?? ''}
-              onChange={e => onChange('tempo_cargo', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: 2 anos"
-            />
-          </div>
+
+          {showHistoricoEtempo && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{labelTempoCargo}</label>
+              <input
+                type="text"
+                value={valores.tempo_cargo ?? ''}
+                onChange={e => onChange('tempo_cargo', e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex: 2 anos"
+              />
+            </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Última avaliação de desempenho</label>
-            <input
-              type="text"
-              value={valores.historico_avaliacao ?? ''}
-              onChange={e => onChange('historico_avaliacao', e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: Excede expectativas"
-            />
+        {showHistoricoEtempo && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Última avaliação de desempenho</label>
+              <input
+                type="text"
+                value={valores.historico_avaliacao ?? ''}
+                onChange={e => onChange('historico_avaliacao', e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex: Excede expectativas"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Política salarial da empresa</label>
+              <input
+                type="text"
+                value={valores.politica_salarial ?? ''}
+                onChange={e => onChange('politica_salarial', e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex: posição no P50 do mercado"
+              />
+            </div>
           </div>
+        )}
+
+        {!showHistoricoEtempo && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Política salarial da empresa</label>
             <input
@@ -81,6 +112,56 @@ export function Passo3Contexto({ valores, onChange, onSimular, onVoltar, loading
               placeholder="Ex: posição no P50 do mercado"
             />
           </div>
+        )}
+
+        {showUltimoReajuste && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Último reajuste salarial
+                <span className="ml-1 text-xs text-gray-400 font-normal">Melhora a análise de defasagem</span>
+              </label>
+              <input
+                type="text"
+                value={valores.ultimo_reajuste ?? ''}
+                onChange={e => onChange('ultimo_reajuste', e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex: jan/2024, há 18 meses"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Percentual do último reajuste (%)
+              </label>
+              <input
+                type="number"
+                min={0}
+                max={100}
+                step={0.1}
+                value={valores.percentual_ultimo_reajuste ?? ''}
+                onChange={e => onChange('percentual_ultimo_reajuste', Number(e.target.value))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex: 5"
+              />
+            </div>
+          </div>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Criticidade do cargo
+            <span className="ml-1 text-xs text-gray-400 font-normal">Impacta análise de risco de perda</span>
+          </label>
+          <select
+            value={valores.criticidade_cargo ?? ''}
+            onChange={e => onChange('criticidade_cargo', e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Selecione</option>
+            <option value="alta">Alta — perfil escasso ou conhecimento único</option>
+            <option value="media">Média — reposição possível em prazo razoável</option>
+            <option value="baixa">Baixa — perfil facilmente substituível</option>
+          </select>
         </div>
 
         <div>
@@ -91,7 +172,7 @@ export function Passo3Contexto({ valores, onChange, onSimular, onVoltar, loading
               onChange={e => onChange('pares_existem', e.target.checked)}
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
-            Existem pares internos no mesmo cargo?
+            {tipo === 'contratacao' ? 'Existem colaboradores no mesmo cargo/nível?' : 'Existem pares internos no mesmo cargo?'}
           </label>
           {valores.pares_existem && (
             <div className="mt-2">

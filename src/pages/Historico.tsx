@@ -55,7 +55,7 @@ export function Historico() {
           {simulacoes.map(sim => (
             <Link
               key={sim.id}
-              to={`/simulacao/${sim.id}`}
+              to={sim.status === 'concluido' ? `/simulacao/${sim.id}/resultado` : `/simulacao/${sim.id}`}
               className="block bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 hover:border-blue-300 hover:bg-blue-50 transition-colors"
             >
               <div className="flex items-center justify-between">

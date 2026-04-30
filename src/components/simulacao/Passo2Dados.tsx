@@ -19,49 +19,78 @@ const estadosBR = [
   'MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO',
 ]
 
-export function Passo2Dados({ tipo, valores, onChange, onAvancar, onVoltar }: Props) {
-  const isPromocao = tipo === 'promocao'
-  const isContratacao = tipo === 'contratacao'
-  const isContraproposta = tipo === 'contraproposta'
+const headers: Record<TipoMovimento, { titulo: string; subtitulo: string }> = {
+  promocao:      { titulo: 'Dados da promoção',         subtitulo: 'Informe o cargo atual, o novo cargo e os salários envolvidos.' },
+  aumento:       { titulo: 'Dados do cargo e salário',  subtitulo: 'Preencha os campos obrigatórios para continuar.' },
+  contratacao:   { titulo: 'Dados da vaga',             subtitulo: 'Informe o cargo e o salário que pretende oferecer.' },
+  ajuste_faixa:  { titulo: 'Dados da faixa salarial',   subtitulo: 'Informe o cargo e os valores da faixa atual e proposta.' },
+  contraproposta:{ titulo: 'Dados da contraproposta',   subtitulo: 'Informe o salário atual do colaborador e o valor da oferta recebida.' },
+}
 
-  const obrigatoriosPreenchidos =
-    !!valores.cargo_atual &&
-    !!valores.salario_atual &&
-    !!valores.salario_proposto &&
-    !!valores.regime &&
-    !!valores.setor &&
-    !!valores.estado
+export function Passo2Dados({ tipo, valores, onChange, onAvancar, onVoltar }: Props) {
+  const isContratacao   = tipo === 'contratacao'
+  const isPromocao      = tipo === 'promocao'
+  const isContraproposta = tipo === 'contraproposta'
+  const isAjusteFaixa   = tipo === 'ajuste_faixa'
+
+  const labelCargo = isContratacao
+    ? 'Cargo a contratar'
+    : isContraproposta
+    ? 'Cargo do colaborador'
+    : 'Cargo atual'
+
+  const labelSalarioAtual = isContraproposta
+    ? 'Salário atual do colaborador (R$)'
+    : isAjusteFaixa
+    ? 'Salário médio atual da faixa (R$)'
+    : 'Salário atual (R$)'
+
+  const labelSalarioProposto = isContratacao
+    ? 'Salário a oferecer (R$)'
+    : isContraproposta
+    ? 'Oferta da concorrência (R$)'
+    : isAjusteFaixa
+    ? 'Novo salário da faixa (R$)'
+    : 'Salário proposto (R$)'
+
+  const placeholderSalarioProposto = isContratacao
+    ? 'Ex: 8000'
+    : isContraproposta
+    ? 'Ex: 12000 (oferta recebida)'
+    : isAjusteFaixa
+    ? 'Ex: 10000 (nova mediana)'
+    : 'Ex: 10000'
+
+  const obrigatoriosPreenchidos = isContratacao
+    ? !!valores.cargo_atual && !!valores.salario_proposto && !!valores.regime && !!valores.setor && !!valores.estado
+    : !!valores.cargo_atual && !!valores.salario_atual && !!valores.salario_proposto && !!valores.regime && !!valores.setor && !!valores.estado
+
+  const { titulo, subtitulo } = headers[tipo]
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-2">
-        {isContraproposta ? 'Dados da contraproposta' : 'Dados do cargo e salário'}
-      </h2>
-      <p className="text-gray-500 mb-6 text-sm">
-        {isContraproposta
-          ? 'Informe o salário atual do colaborador e o valor da oferta recebida.'
-          : 'Preencha os campos obrigatórios para continuar.'}
-      </p>
+      <h2 className="text-xl font-bold text-gray-900 mb-2">{titulo}</h2>
+      <p className="text-gray-500 mb-6 text-sm">{subtitulo}</p>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className={`grid grid-cols-1 gap-4 ${isPromocao ? 'sm:grid-cols-2' : ''}`}>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Cargo atual <span className="text-red-500">*</span>
+              {labelCargo} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={valores.cargo_atual ?? ''}
               onChange={e => onChange('cargo_atual', e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: Analista de RH"
+              placeholder={isContratacao ? 'Ex: Desenvolvedor Backend' : isContraproposta ? 'Ex: Engenheiro de Software' : 'Ex: Analista de RH'}
             />
           </div>
 
-          {(isPromocao || isContratacao) && (
+          {isPromocao && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {isContratacao ? 'Cargo a contratar' : 'Cargo proposto'}
+                Novo cargo após promoção
               </label>
               <input
                 type="text"
@@ -75,22 +104,24 @@ export function Passo2Dados({ tipo, valores, onChange, onAvancar, onVoltar }: Pr
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
+          {!isContratacao && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {labelSalarioAtual} <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={valores.salario_atual ?? ''}
+                onChange={e => onChange('salario_atual', Number(e.target.value))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex: 8000"
+              />
+            </div>
+          )}
+          <div className={isContratacao ? 'sm:col-span-2 max-w-sm' : ''}>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {isContraproposta ? 'Salário atual do colaborador (R$)' : 'Salário atual (R$)'} <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              min={0}
-              value={valores.salario_atual ?? ''}
-              onChange={e => onChange('salario_atual', Number(e.target.value))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: 8000"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {isContraproposta ? 'Oferta da concorrência (R$)' : 'Salário proposto (R$)'} <span className="text-red-500">*</span>
+              {labelSalarioProposto} <span className="text-red-500">*</span>
             </label>
             <input
               type="number"
@@ -98,7 +129,7 @@ export function Passo2Dados({ tipo, valores, onChange, onAvancar, onVoltar }: Pr
               value={valores.salario_proposto ?? ''}
               onChange={e => onChange('salario_proposto', Number(e.target.value))}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={isContraproposta ? 'Ex: 12000 (oferta recebida)' : 'Ex: 10000'}
+              placeholder={placeholderSalarioProposto}
             />
           </div>
         </div>
